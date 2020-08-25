@@ -2,6 +2,7 @@ package me.compsup2.fcairship;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -49,6 +50,14 @@ public final class FCAirship extends JavaPlugin implements Listener {
     HashMap<Player, UUID> redTeam = new HashMap<Player, UUID>();
     String game_starting_message = getConfig().getString("game-starting-message");
     int time_to_game_start = getConfig().getInt("time-to-game-start");
+    int blue_x = 10;
+    int blue_y = 10;
+    int blue_z = 10;
+    int red_x = 10;
+    int red_y = 10;
+    int red_z = 10;
+    Location loc_red = new Location(Bukkit.getWorld("world"), -16.5, 67, -22.5, 0, 0);
+    Location loc_blue = new Location(Bukkit.getWorld("world"), -16.5, 67, -22.5, 0, 0);
     //</editor-fold>
 
 
@@ -58,8 +67,8 @@ public final class FCAirship extends JavaPlugin implements Listener {
 
 
         if (cmd.getName().equalsIgnoreCase("start")) {
+            if (!(sender instanceof  Player)) { return true; }
             Player p = (Player) sender;
-
             Bukkit.broadcastMessage(ChatColor.GOLD + game_starting_message + time_to_game_start);
 
             new BukkitRunnable() {
@@ -75,11 +84,11 @@ public final class FCAirship extends JavaPlugin implements Listener {
             for (Player online_player : getServer().getOnlinePlayers()) {
                 if (add_to_blue) {
                     blueTeam.put(online_player, online_player.getUniqueId());
-                    online_player.sendMessage("You have been put on blue team!");
+                    online_player.sendMessage("You have been put on the blue team!");
                     add_to_blue = false;
                 } else {
                     redTeam.put(online_player, online_player.getUniqueId());
-                    online_player.sendMessage("You have been put on red team!");
+                    online_player.sendMessage("You have been put on the red team!");
                     add_to_blue = true;
                 }
             }
@@ -93,7 +102,7 @@ public final class FCAirship extends JavaPlugin implements Listener {
     Player player = e.getPlayer();
     Material m = e.getBlock().getType();
     if (m.equals(Material.OBSIDIAN)) {
-        Bukkit.broadcastMessage(ChatColor.RED + player.getDisplayName() + ChatColor.GOLD + " has destroyed the enemys core! Game has ended.");
+        Bukkit.broadcastMessage(ChatColor.RED + player.getDisplayName() + ChatColor.GOLD + " has destroyed the enemy's core! Game has ended.");
         if (blueTeam.get(player) == player.getUniqueId()) {
             
         }
@@ -112,11 +121,14 @@ public final class FCAirship extends JavaPlugin implements Listener {
                 p.setHealth(20);
                 p.sendMessage("You Died!");
                 if (blueTeam.get(p) == p.getUniqueId()) {
+                    p.teleport(loc_blue);
 
-                    // Send player to there spawn some how
+
+                    // Send player to there spawn
 
                 } else {
-                    // Send player to there spawn some how
+                    p.teleport(loc_red);
+                    // Send player to there spawn
                 }
             }
         }
