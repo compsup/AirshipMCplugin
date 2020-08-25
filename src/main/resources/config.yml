@@ -1,0 +1,3 @@
+enabled: true //This enables or disables the plugin
+game-starting-message: "Game starting in"
+time-to-game-start: 10 // How long it takes till the games starts when someone does /start

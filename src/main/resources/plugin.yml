@@ -1,0 +1,9 @@
+name: FCAirship
+version: ${project.version}
+main: me.compsup2.fcairship.FCAirship
+api-version: 1.15
+authors: [compsup2]
+commands:
+  start:
+    description: Start the MiniGame
+    usage: /<command>

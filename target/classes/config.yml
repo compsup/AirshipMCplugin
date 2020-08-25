@@ -1,0 +1,2 @@
+enabled: true //This enables or disables the plugin
+game-starting-message: "Game starting..."
