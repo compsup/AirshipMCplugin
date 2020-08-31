@@ -4,6 +4,9 @@ main: me.compsup2.fcairship.FCAirship
 api-version: 1.15
 authors: [compsup2]
 commands:
+  bomber:
+    description: Get the bomber kit.
+    usage: /<command>
   start:
     description: Start the MiniGame
     usage: /<command>
