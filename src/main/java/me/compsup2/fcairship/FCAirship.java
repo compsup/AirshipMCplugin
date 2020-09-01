@@ -24,6 +24,7 @@ public final class FCAirship extends JavaPlugin implements Listener {
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
         this.getCommand("bomber").setExecutor(new kits(this));
+
         // Plugin startup logic
         this.getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -65,24 +66,35 @@ public final class FCAirship extends JavaPlugin implements Listener {
     String game_starting_message = getConfig().getString("game-starting-message");
     Integer time_to_game_start = getConfig().getInt("time-to-game-start");
     Location loc_red = new Location(Bukkit.getWorld("world"), 0, 0, -0, 0, 0);
-    Location loc_blue = new Location(Bukkit.getWorld("world"), -0, 0, -0, 0, 0);
+    Location loc_blue = new Location(Bukkit.getWorld("world"), 100, 100, 100, 0, 0);
+    boolean started = false;
+    boolean game_started = false;
 
     //</editor-fold>
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("start")) {
+            Player p = (Player) sender;
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You must be a player to use that command!");
                 return true;
             }
-            Player p = (Player) sender;
+            if (started){
+                p.sendMessage("A game has already started! Please wait for it to end to start another game.");
+                return true;
+            }
+            for (Player player : getServer().getOnlinePlayers()) {
+                Bukkit.broadcastMessage("DEBUG: " + player.getDisplayName());
+            }
+            started = true;
             Bukkit.broadcastMessage(ChatColor.GOLD + game_starting_message + time_to_game_start);
 
             new BukkitRunnable() {
 
                 @Override
                 public void run() {
+                    game_started = true;
                     boolean add_to_blue = true;
                     for (Player online_player : getServer().getOnlinePlayers()) {
                         if (add_to_blue) {
@@ -107,29 +119,37 @@ public final class FCAirship extends JavaPlugin implements Listener {
     public void onBlockBreakEvent(BlockBreakEvent e) {
         Player player = e.getPlayer();
         Material m = e.getBlock().getType();
-        if (m.equals(Material.OBSIDIAN)) {
-            if (blueTeam.get(player) == player.getUniqueId()) {
-                Bukkit.broadcastMessage(
-                    ChatColor.RED +
-                    player.getDisplayName() +
-                    ChatColor.GOLD +
-                    " has destroyed the enemy's core!" +
-                    ChatColor.BLUE +
-                    "Blue Team " +
-                    ChatColor.GOLD +
-                    "has won!"
-                );
-            } else {
-                Bukkit.broadcastMessage(
-                    ChatColor.RED +
-                    player.getDisplayName() +
-                    ChatColor.GOLD +
-                    " has destroyed the enemy's core!" +
-                    ChatColor.RED +
-                    "Red Team " +
-                    ChatColor.GOLD +
-                    "has won!"
-                );
+        if (game_started) {
+            if (m.equals(Material.BEACON)) {
+                started = false;
+
+                if (blueTeam.get(player) == player.getUniqueId()) {
+                    blueTeam.clear();
+                    redTeam.clear();
+                    Bukkit.broadcastMessage(
+                            ChatColor.RED +
+                                    player.getDisplayName() +
+                                    ChatColor.GOLD +
+                                    " has destroyed the enemy's core!" +
+                                    ChatColor.BLUE +
+                                    " Blue Team " +
+                                    ChatColor.GOLD +
+                                    "has won!"
+                    );
+                } else {
+                    blueTeam.clear();
+                    redTeam.clear();
+                    Bukkit.broadcastMessage(
+                            ChatColor.RED +
+                                    player.getDisplayName() +
+                                    ChatColor.GOLD +
+                                    " has destroyed the enemy's core!" +
+                                    ChatColor.RED +
+                                    " Red Team " +
+                                    ChatColor.GOLD +
+                                    "has won!"
+                    );
+                }
             }
         }
     }
@@ -152,12 +172,26 @@ public final class FCAirship extends JavaPlugin implements Listener {
     public void onDeath(PlayerDeathEvent e) {
         Player p = e.getEntity().getPlayer();
         Player killer = e.getEntity().getKiller();
-        p.spigot().respawn();
-        Inventory inv = p.getInventory();
-        inv.clear();
-        p.sendMessage("You died!");
-        Bukkit.broadcastMessage(
-                p.getDisplayName() + "has been killed by " + killer.getDisplayName()
-        );
+        if (!(p == null)) {
+            if (blueTeam.get(p) == p.getUniqueId()) {
+                p.spigot().respawn();
+                p.teleport(loc_blue);
+                p.sendMessage("You should have been teleported!");
+                // Send player to there spawn
+            } else {
+                p.spigot().respawn();
+                p.teleport(loc_red);
+                // Send player to there spawn
+            }
+            Inventory inv = p.getInventory();
+            inv.clear();
+            p.sendMessage("You died!");
+        }
+        if (!(killer == null)) {
+            Bukkit.broadcastMessage(
+                    p.getDisplayName() + "has been killed by " + killer.getDisplayName()
+            );
+        }
+
     }
 }

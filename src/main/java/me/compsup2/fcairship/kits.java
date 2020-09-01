@@ -41,6 +41,18 @@ public class kits implements CommandExecutor {
             ItemStack boots = new ItemStack(Material.GOLDEN_BOOTS, 1);
 
             inv.addItem(tnt);
+            inv.addItem(sword);
+            inv.addItem(bucket);
+            inv.addItem(repeater);
+            inv.addItem(wood_plank);
+            inv.addItem(diamond_pickaxe);
+            inv.addItem(redstone);
+            inv.addItem(button);
+            inv.addItem(sheild);
+            inv.addItem(tnt);
+            inv.addItem(chestplate);
+            inv.addItem(leggings);
+            inv.addItem(boots);
 
         }
 
